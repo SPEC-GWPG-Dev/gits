@@ -40,7 +40,11 @@ public:
     STATE_FINISHED
   };
 
+#if defined(SPEC_BLENDER)
+protected:
+#else
 private:
+#endif
   TState _state;     /**< @brief defines current player state */
   bool _interactive; /**< @brief defines if player is running in interactive mode */
   StreamingContext _sc;

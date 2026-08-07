@@ -83,6 +83,16 @@ public:
   // Last chunk needs to be written by the owner of scheduler.
   void WriteChunk(bool purgeTokens = true);
   void WriteAll();
+
+#ifdef SPEC_BLENDER
+public:
+  // Loads the entire stream into memory and hands ownership of every token to
+  // the caller. Intended to be used with the --loadWholeStreamBeforePlayback
+  // player argument so a trace can be replayed repeatedly without the scheduler
+  // purging played tokens. After this call the scheduler owns no tokens and
+  // will not free them.
+  CTokenList ExtractLoadedStream();
+#endif // SPEC_BLENDER
 };
 
 } // namespace gits

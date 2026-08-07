@@ -397,7 +397,11 @@ void gits::OpenGL::CwglSetPixelFormat::Run() {
   }
 
   Window_* window = new Window_(xsize, ysize, xpos, ypos, isWindowVisible);
+#ifdef SPEC_BLENDER
+  window->set_title("blender");
+#else
   window->set_title("gitsPlayer");
+#endif
   HDC dc = ptblGetDC(static_cast<HWND>((void*)window->handle()));
 
   //save window object in state dynamic map

@@ -117,7 +117,11 @@ void GlxPlayerMngr::SetupWindowWithoutId(std::vector<int>& winparams) {
   XVisualInfo* vi =
       (XVisualInfo*)ptbl_glXGetVisualFromFBConfig((Display*)GetNativeDisplay(), configs[0]);
   _window = new Window_(configs[0], (XVisualInfo*)vi, xsize, ysize, xpos, ypos, (bool)winparams[4]);
+#ifdef SPEC_BLENDER
+  _window->set_title("blender");
+#else
   _window->set_title("gitsPlayer");
+#endif
 }
 
 void GlxPlayerMngr::SetupWindowWithId(std::vector<int>& winparams) {
@@ -139,7 +143,11 @@ void GlxPlayerMngr::SetupWindowWithId(std::vector<int>& winparams) {
   XVisualInfo* vi =
       (XVisualInfo*)ptbl_glXGetVisualFromFBConfig((Display*)GetNativeDisplay(), _fbConfig);
   _window = new Window_(_fbConfig, (XVisualInfo*)vi, xsize, ysize, xpos, ypos, (bool)winparams[4]);
+#ifdef SPEC_BLENDER
+  _window->set_title("blender");
+#else
   _window->set_title("gitsPlayer");
+#endif
 }
 
 void GlxPlayerMngr::SetContext() {}

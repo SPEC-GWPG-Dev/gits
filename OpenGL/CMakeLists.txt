@@ -6,7 +6,9 @@
 #
 # ===================== end_copyright_notice ==============================
 
-set(OpenGL_SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/OpenGL/codegen")
+# SPEC_BLENDER: gits is embedded as a subproject, so use this directory
+# instead of top-level CMAKE_SOURCE_DIR to locate OpenGL codegen scripts.
+set(OpenGL_SCRIPTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/codegen")
 
 add_custom_command(
   OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/OpenGL_codegen.stamp"

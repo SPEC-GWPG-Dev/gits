@@ -110,6 +110,10 @@ endif()
 add_library(common ${common_SOURCES})
 set_target_properties(common PROPERTIES FOLDER "common")
 
+# SPEC_BLENDER: the blender workload uses scheduler/player extensions guarded
+# by this define, so the common library must compile those implementations too.
+target_compile_definitions(common PRIVATE SPEC_BLENDER)
+
 add_definitions(-DGITS_COMMON_PROJ)
 
 add_dependencies(common config_codegen)

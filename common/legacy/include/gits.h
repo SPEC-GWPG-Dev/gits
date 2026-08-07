@@ -294,6 +294,13 @@ public:
   uint32_t CurrentFrame() const {
     return _frameNo;
   }
+
+#if defined(SPEC_BLENDER)
+  uint32_t SetCurrentFrame(int currFrame) {
+    return _frameNo = currFrame;
+  }
+#endif
+
   void FrameCountUp() {
     ++_frameNo;
     _drawInFrameCounter = 0;

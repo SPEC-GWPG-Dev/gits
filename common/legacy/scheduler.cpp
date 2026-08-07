@@ -357,4 +357,24 @@ bool CScheduler::Run(CAction& action) {
   }
   return true;
 }
+
+#ifdef SPEC_BLENDER
+CScheduler::CTokenList CScheduler::ExtractLoadedStream() {
+  CTokenList completeStream;
+
+  // Drain the loader completely. With --loadWholeStreamBeforePlayback the whole
+  // stream is delivered as a single chunk; otherwise it is accumulated chunk by
+  // chunk. Each chunk's token pointers are moved into completeStream and the
+  // scheduler's own list is cleared, so ownership passes to the caller and the
+  // token shredder never disposes of them.
+  while (!_streamExhausted) {
+    _streamExhausted = LoadChunk();
+    completeStream.insert(completeStream.end(), _tokenList.begin(), _tokenList.end());
+    _tokenList.clear();
+  }
+
+  _nextToPlay = _tokenList.end();
+  return completeStream;
+}
+#endif // SPEC_BLENDER
 } // namespace gits
