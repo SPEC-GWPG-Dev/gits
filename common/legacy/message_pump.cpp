@@ -24,11 +24,15 @@
 //********************************* Windows Player Window ***********************************
 
 LRESULT CALLBACK WndProcMessagePump(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+  // SPECviewperf disables mouse-driven window movement during playback.
+#ifndef SPEC_BLENDER
   static bool moving = false;
   static int xInit = 0, yInit = 0;
   int xPos = 0, yPos = 0;
+#endif
 
   switch (msg) {
+#ifndef SPEC_BLENDER
   case WM_MOUSEMOVE:
     if (moving) {
       xPos = GET_X_LPARAM(lParam);
@@ -47,8 +51,25 @@ LRESULT CALLBACK WndProcMessagePump(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
   case WM_LBUTTONUP:
     moving = false;
     break;
+#else
+  case WM_MOUSEMOVE:
+  case WM_LBUTTONDOWN:
+  case WM_LBUTTONUP:
+    break;
+#endif
   case WM_KEYDOWN:
+#ifdef SPEC_BLENDER
+  case WM_KEYUP:
+  case WM_CHAR:
+  case WM_DEADCHAR:
+  case WM_SYSKEYDOWN:
+  case WM_SYSKEYUP:
+  case WM_SYSCHAR:
+  case WM_SYSDEADCHAR:
+    // SPECviewperf ignores keyboard input, including Alt+F4, during embedded playback.
+  #else
     MessagePump::get()->key_down(static_cast<int>(wParam));
+  #endif
     break;
   case WM_CLOSE:
     MessagePump::get()->stop();
@@ -97,6 +118,8 @@ win_ptr_t CreateWin(int width, int height, int x, int y, bool show) {
     x = 0;
     y = 0;
 
+    // SPECviewperf disables display-mode changes; fullscreen only changes window styling.
+  #ifndef SPEC_BLENDER
     DEVMODE devMode = {};
     devMode.dmSize = sizeof(devMode);
     devMode.dmPelsWidth = width;
@@ -109,6 +132,7 @@ win_ptr_t CreateWin(int width, int height, int x, int y, bool show) {
       LOG_WARNING << "Cannot adjust screen resolution to match dimensions of " << width << " x "
                   << height << " pixels for a window.";
     }
+  #endif
   } else if (gits::Configurator::Get().common.player.showWindowBorder) {
     style = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
   }
@@ -147,6 +171,8 @@ void ResizeWin(win_ptr_t winptr, int width, int height) {
                              "  GetLastError() = " +
                              gits::Win32ErrorToString(GetLastError()));
   }
+  // SPECviewperf disables display-mode changes when resizing playback windows.
+#ifndef SPEC_BLENDER
   if (gits::Configurator::Get().common.player.windowMode ==
       gits::WindowMode::EXCLUSIVE_FULLSCREEN) {
     DEVMODE devMode = {};
@@ -162,6 +188,7 @@ void ResizeWin(win_ptr_t winptr, int width, int height) {
                   << height << " pixels for window " << winptr << ".";
     }
   }
+#endif
 }
 
 void MoveWin(win_ptr_t winptr, int x, int y) {
@@ -251,11 +278,14 @@ void MessagePump::process_messages() {
             {gits::PUBLISHER_PLAYER, gits::TOPIC_END},
             std::make_shared<gits::PlaybackEndMessage>());
       };
+      // SPECviewperf fullscreen does not change display modes or cursor visibility.
+    #ifndef SPEC_BLENDER
       if (gits::Configurator::Get().common.player.windowMode ==
           gits::WindowMode::EXCLUSIVE_FULLSCREEN) {
         ShowCursor(TRUE);
         ChangeDisplaySettings(NULL, 0);
       }
+    #endif
       PostQuitMessage(0);
     }
   }

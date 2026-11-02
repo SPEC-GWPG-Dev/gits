@@ -63,6 +63,8 @@ public:
       posX = 0;
       posY = 0;
 
+      // SPECviewperf disables display-mode changes; fullscreen only changes window styling.
+    #ifndef SPEC_BLENDER
       DEVMODE devMode = {};
       devMode.dmSize = sizeof(devMode);
       devMode.dmPelsWidth = width;
@@ -75,6 +77,7 @@ public:
         LOG_WARNING << "Cannot adjust screen resolution to match dimensions of " << width << " x "
                     << height << " pixels for a window.";
       }
+    #endif
     } else if (Configurator::Get().common.player.showWindowBorder) {
       style = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
     }
@@ -101,10 +104,13 @@ public:
 
   ~PlayerWindowWin() override {
     if (m_Hwnd != nullptr) {
+      // SPECviewperf fullscreen does not change display modes or cursor visibility.
+    #ifndef SPEC_BLENDER
       if (Configurator::Get().common.player.windowMode == gits::WindowMode::EXCLUSIVE_FULLSCREEN) {
         ShowCursor(TRUE);
         ChangeDisplaySettings(nullptr, 0);
       }
+    #endif
       DestroyWindow(m_Hwnd);
       m_Hwnd = nullptr;
     }
@@ -138,6 +144,8 @@ public:
       GITS_ASSERT(false, "SetWindowPos failed");
     }
 
+    // SPECviewperf disables display-mode changes when resizing playback windows.
+  #ifndef SPEC_BLENDER
     if (Configurator::Get().common.player.windowMode == gits::WindowMode::EXCLUSIVE_FULLSCREEN) {
       DEVMODE devMode = {};
       devMode.dmSize = sizeof(devMode);
@@ -152,6 +160,7 @@ public:
                     << height << " pixels for window " << m_Hwnd << ".";
       }
     }
+  #endif
   }
 
   void SetPosition(int32_t x, int32_t y) override {
