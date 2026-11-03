@@ -114,7 +114,12 @@ win_ptr_t CreateWin(int width, int height, int x, int y, bool show) {
   if (gits::Configurator::Get().common.player.windowMode ==
       gits::WindowMode::EXCLUSIVE_FULLSCREEN) {
     style = WS_POPUP;
+#ifdef SPEC_BLENDER
+    // Allow benchmark GUI elements to be on top of window.
+    exStyle = WS_EX_APPWINDOW;
+#else
     exStyle = WS_EX_APPWINDOW | WS_EX_TOPMOST;
+#endif
     x = 0;
     y = 0;
 
