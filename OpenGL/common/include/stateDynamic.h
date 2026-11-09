@@ -437,6 +437,9 @@ public:
   CStateDynamicNative& operator=(const CStateDynamicNative& other) = delete;
   ~CStateDynamicNative();
   static CStateDynamicNative& Get();
+#ifdef SPEC_BLENDER
+  void DestroyPlayerWindows();
+#endif
 
   // these functions give access to window info in recorder
   void MapAddWindowRecorder(void* win, std::vector<int>& winparams) {

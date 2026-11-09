@@ -647,10 +647,26 @@ CStateDynamicNative& CStateDynamicNative::Get() {
 CStateDynamicNative::CStateDynamicNative() {}
 
 CStateDynamicNative::~CStateDynamicNative() {
+#ifdef SPEC_BLENDER
+  DestroyPlayerWindows();
+#else
   for (auto& window : _winMapPlay) {
     delete window.second;
   }
+#endif
 }
+
+#ifdef SPEC_BLENDER
+// Blender calls this before DLL unload to avoid destroying windows and invoking
+// graphics driver hooks under the Windows loader lock. Clear the map so the
+// static destructor has no windows left to destroy.
+void CStateDynamicNative::DestroyPlayerWindows() {
+  for (auto& window : _winMapPlay) {
+    delete window.second;
+  }
+  _winMapPlay.clear();
+}
+#endif
 
 //--------------------------NATIVE STATE DYNAMIC WGL-----------------------
 bool CStateDynamicNative::MapFindWindowRecorder(void* win, std::vector<int>& winparams) {
